@@ -1,42 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet, Text, View, Button, Alert } from "react-native";
-import * as Contacts from "expo-contacts";
+
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as Csv from "papaparse";
 
-const createContact = async (user) => {
-  const { fname, lname, mnumber } = user;
-  let phoneNumber = [{ label: "mobile", number: mnumber, type: "2" }];
-  const contact = {
-    [Contacts.Fields.FirstName]: fname,
-    [Contacts.Fields.LastName]: lname,
-    [Contacts.Fields.Company]: "Discovery",
-    [Contacts.Fields.PhoneNumbers]: phoneNumber,
-  };
-  // console.log(contact);
-  Contacts.addContactAsync(contact);
-  // console.log(`${fname} -> ${mnumber}`);
-};
-
-const createContacts = async (userList) => {
-  userList.reduce(async (next, user) => {
-    await next;
-    createContact(user);
-  });
-};
-
-const getPermission = async () => {
-  const { status } = await Contacts.requestPermissionsAsync();
-  // const {status2} = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-  return status;
-};
-
-const getContacts = async () => {
-  let contacts = await Contacts.getContactsAsync();
-  console.log(contacts);
-};
+import { createContacts, getContacts, getPermission } from "./Contacts";
 
 const importCSV = async () => {
   console.log("Importing CSV");
@@ -52,7 +22,6 @@ const importCSV = async () => {
       try {
         console.log(FileSystem.documentDirectory);
         let data = await FileSystem.readAsStringAsync(`file://${document.uri}`);
-        // console.log(data);
         json = Csv.parse(data, { header: true });
         console.log("JSON Data");
         console.log(json.data);
@@ -71,7 +40,7 @@ export default function App() {
     <View style={styles.container}>
       <Text>Import Contact Details from a CSV File</Text>
       <Button onPress={importCSV} title="Import"></Button>
-      <Button onPress={getContacts} title="Contacts"></Button>
+      {/* <Button onPress={getContacts} title="Contacts"></Button> */}
       <StatusBar style="auto" />
     </View>
   );
@@ -80,7 +49,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#20babd",
     alignItems: "center",
     justifyContent: "center",
   },
