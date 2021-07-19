@@ -6,15 +6,13 @@ import base64 from "base64-js";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as Csv from "papaparse";
-import XLSX from "xlsx";
 
-// import { unzipWithPassword } from "react-native-zip-archive";
+import { unzipWithPassword } from "react-native-zip-archive";
 
 import { createContacts, getContacts, getPermission } from "./Contacts";
 import PasswordInput from "./Components/PasswordInput";
 
 const importCSV = async (password) => {
-  console.log(password);
   console.log("Importing CSV");
   let status = await getPermission();
   let json;
@@ -28,17 +26,18 @@ const importCSV = async (password) => {
     } else {
       try {
         if (document.name.endsWith(".zip")) {
-          console.log(`Zip File : ${document.name}`);
-          // let workdir = FileSystem.cacheDirectory;
-          // fileName = unZipFile(document.uri, workdir, password);
-          // return;
+          if (password.length <= 1) {
+            Alert.alert("Please Provide the Password");
+            return;
+          }
+          let workdir = FileSystem.cacheDirectory;
+          fileName = await unZipFile(document.uri, workdir, password);
         }
-        if (document.name.endsWith(".xlsx")) {
-          console.log(`Excel File : ${document.name}`);
-          let data = await readXLSX(document.uri);
-          console.log(data);
+        if (document.name.endsWith(".csv")) {
+          fileName = `file://${document.uri}`;
         }
-        let data = await FileSystem.readAsStringAsync(`file://${document.uri}`);
+        console.log(`fileName : ${fileName}`);
+        let data = await FileSystem.readAsStringAsync(fileName);
         json = Csv.parse(data, { header: true });
         console.log("JSON Data");
         console.log(json.data);
@@ -52,41 +51,24 @@ const importCSV = async (password) => {
   }
 };
 
-// const unZipFile = async (uri, workdir, password) => {
-//   console.log(`URI: ${uri} PASS: ${password} WD: ${workdir}`);
-
-//   unzipWithPassword(uri, `${workdir}`, password)
-//     .then((path) => console.log(path))
-//     .catch((error) => console.error(error));
-
-//   //console.log(`Unzip Result : ${result}`);
-
-//   return "Test";
-// };
-function stringToUint8Array(str) {
-  const length = str.length;
-  const array = new Uint8Array(new ArrayBuffer(length));
-  for (let i = 0; i < length; i++) array[i] = str.charCodeAt(i);
-  return array;
-}
-const readXLSX = async (fname) => {
-  let content = await FileSystem.readAsStringAsync(`file://${fname}`);
-  let data = base64.fromByteArray(stringToUint8Array(content));
-  let workbook = XLSX.read(data, { type: "string" });
-  console.log(workbook.SheetNames);
-  console.log(workbook.Sheets[workbook.SheetNames[0]]);
-  let first_worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  console.log(first_worksheet);
-  let json = XLSX.utils.sheet_to_json(first_worksheet, { header: 1 });
-  // console.log(json);
-  return json;
+const unZipFile = async (uri, workdir, password) => {
+  console.log(`URI: ${uri} PASS: ${password} WD: ${workdir}`);
+  let fname = "none";
+  let path = await unzipWithPassword(uri, `${workdir}`, password);
+  fname = path[0];
+  let result = `${workdir}${fname}`;
+  console.log(result);
+  if (fname != "none") {
+    return result;
+  }
+  return "none";
 };
 
 export default function App() {
   const [password, setPassword] = useState();
   return (
     <View style={styles.container}>
-      <Text>Import Contact Details from a CSV File</Text>
+      <Text>Import Contact Details from a CSV File!</Text>
       <PasswordInput onChange={(password) => setPassword(password)} />
       <Button onPress={() => importCSV(password)} title="Import"></Button>
       {/* <Button onPress={getContacts} title="Contacts"></Button> */}
@@ -98,7 +80,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#20babd",
+    backgroundColor: "#00babd",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -17,7 +17,7 @@ const createContact = async (user) => {
     [Contacts.Fields.JobTitle]: level,
   };
   console.log(contact);
-  //   Contacts.addContactAsync(contact);
+  Contacts.addContactAsync(contact);
 };
 
 export const createContacts = async (userList) => {
