@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "base64-js": "^1.5.1",
     "expo": "~42.0.1",
     "expo-contacts": "~9.2.5",
     "expo-document-picker": "~9.2.4",
@@ -17,7 +18,10 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
-    "react-native-web": "~0.13.12"
+    "react-native-web": "~0.13.12",
+    "react-native-zip-archive": "^6.0.3",
+    "sheetjs": "^2.0.0",
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"
